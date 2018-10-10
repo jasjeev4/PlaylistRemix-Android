@@ -42,10 +42,10 @@ class ScrollingActivity : CAppCompatActivity() {
 
         val modelAdapter = moshi.adapter(ResultModel::class.java)
         val json = modelAdapter.fromJson(data)
-        scroller.text = json?.result?.playlist.toString();
+        //scroller.text = json?.result?.playlist.toString();
         val tracks = json?.result?.playlist?.tracks
         val len = tracks!!.size
-        var trackNames: Array<String> = arrayOf(String())
+        var trackNames: Array<String> = Array(len) { "n = $it" }
         var i = 0
         for(track in tracks!!) {
             trackNames[i++] = track.name!!
