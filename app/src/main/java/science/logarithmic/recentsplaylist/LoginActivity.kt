@@ -24,7 +24,17 @@ import android.widget.TextView
 import java.util.ArrayList
 import android.Manifest.permission.READ_CONTACTS
 import android.content.Intent
+import android.provider.Settings.System.getString
+import android.util.Log
 import android.widget.Toast
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import io.multimoon.colorful.CAppCompatActivity
 
 import kotlinx.android.synthetic.main.activity_login.*
@@ -32,27 +42,10 @@ import kotlinx.android.synthetic.main.activity_login.*
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.authentication.LoginActivity.REQUEST_CODE
 
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import science.logarithmic.recentsplaylist.R.layout.activity_login
-
-/**
- * A login screen that offers login via email/password.
- *
- */
-
-const val EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE"
+//const val EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE"
 
 class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
-    private val mOkHttpClient = OkHttpClient()
-    private var mAccessToken: String? = null
-    private var mAccessCode: String? = null
-    private val mCall: Call? = null
 
     val CLIENT_ID = "bac34290c1f0480f9a21b4aab5e2c544"
     val AUTH_TOKEN_REQUEST_CODE = 16
@@ -155,20 +148,19 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        showProgress(false)
         // Check if result comes from the correct activity
         if (requestCode == AUTH_TOKEN_REQUEST_CODE) {
             val response = AuthenticationClient.getResponse(resultCode, data)
 
-            Snackbar.make(login_activity_view, response.type.toString(), Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+//            Snackbar.make(login_activity_view, response.type.toString(), Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
             if(response.type == AuthenticationResponse.Type.TOKEN) {
-                var token = response.accessToken
-
-                Snackbar.make(login_activity_view, token, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show()
+                val token = response.accessToken;
+                val code = response.code;
+                getRecents(token);
             }
             else {
+                showProgress(false)
                 Snackbar.make(login_activity_view, "Error logging in with Spotify", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show()
             }
@@ -182,10 +174,54 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
         }
     }
 
+    private fun getRecents(token: String) {
+        // Instantiate the RequestQueue.
+        val queue = Volley.newRequestQueue(this)
+        val url = "https://primary-server-168620.appspot.com/?token=$token"
+
+        Log.e("Making this request: ", url);
+
+        // Request a string response from the provided URL.
+        val stringRequest = StringRequest(Request.Method.GET, url,
+                Response.Listener<String> { response ->
+                    // Display the first 500 characters of the response string.
+                    Log.e("The json: ", response)
+                    showProgress(false)
+                    showResult(response)
+                },
+                Response.ErrorListener { error ->
+                    showProgress(false)
+                    error.printStackTrace()
+                    showError(error.toString())
+                })
+
+//        stringRequest.retryPolicy = DefaultRetryPolicy(
+//                1200,
+//                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+//                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest)
+
+    }
+
     private fun getRedirectUri(): Uri {
         return Uri.Builder()
                 .scheme(getString(R.string.com_spotify_sdk_redirect_scheme))
                 .authority(getString(R.string.com_spotify_sdk_redirect_host))
                 .build()
+    }
+
+    private fun showResult(result: String?) {
+        val intent = Intent(this, ScrollingActivity::class.java).apply {
+            putExtra("result", result)
+        }
+        startActivity(intent)
+    }
+
+    private fun showError(error: CharSequence) {
+        showProgress(false)
+        Snackbar.make(login_activity_view, "We're having some trouble pulling data right now.", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
     }
 }
