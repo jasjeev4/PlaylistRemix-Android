@@ -160,7 +160,8 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
     private fun getRecents(token: String) {
         // Instantiate the RequestQueue.
         val queue = Volley.newRequestQueue(this)
-        val url = "https://primary-server-168620.appspot.com/login?token=$token"
+        val ver = getString(R.string.app_version)
+        val url = "https://us-central1-primary-server-168620.cloudfunctions.net/recents-android?version=$ver&token=$token"
 
         Log.e("Volley request: ", url)
 
