@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">RecentsPlaylist</string>
+    <string name="app_name">Spotify Recents</string>
+    <string name="splash_description">Sign in with Spotify to get a playlist of your most recently added tracks across your playlists.</string>
     <!-- Strings related to login -->
     <string name="action_sign_in">Sign in with Spotify</string>
     <string name="action_sign_in_short">Sign in</string>
@@ -95,4 +96,8 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">Settings</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">This is a bug!</string>
 </resources>

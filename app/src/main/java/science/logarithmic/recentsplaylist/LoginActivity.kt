@@ -3,45 +3,27 @@ package science.logarithmic.recentsplaylist
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.TargetApi
-import android.content.pm.PackageManager
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
 import android.app.LoaderManager.LoaderCallbacks
-import android.content.CursorLoader
+import android.content.Intent
 import android.content.Loader
 import android.database.Cursor
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
-import android.text.TextUtils
-import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.widget.ArrayAdapter
-import android.widget.TextView
-
-import java.util.ArrayList
-import android.Manifest.permission.READ_CONTACTS
-import android.content.Intent
-import android.provider.Settings.System.getString
+import android.support.design.widget.Snackbar
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import com.android.volley.DefaultRetryPolicy
 import com.android.volley.Request
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import com.spotify.sdk.android.authentication.AuthenticationClient
+import com.spotify.sdk.android.authentication.AuthenticationRequest
+import com.spotify.sdk.android.authentication.AuthenticationResponse
 import io.multimoon.colorful.CAppCompatActivity
-
 import kotlinx.android.synthetic.main.activity_login.*
-
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 //const val EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE"
 
@@ -87,6 +69,7 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
 
         email_sign_in_button.setOnClickListener(object: View.OnClickListener {
             override fun onClick(v: View) {
+                login_contents.visibility = View.GONE
                 spotifyLogin()
             }
         })
@@ -124,7 +107,6 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             login_progress.visibility = if (show) View.VISIBLE else View.GONE
-            email_sign_in_button.visibility = if (show) View.GONE else View.VISIBLE
         }
     }
 
@@ -134,7 +116,7 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
 
 
     fun spotifyLogin(){
-        showProgress(true);
+        showProgress(true)
         val REDIRECT_URI = getRedirectUri().toString()
 
         val builder = AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
@@ -155,12 +137,13 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
 //            Snackbar.make(login_activity_view, response.type.toString(), Snackbar.LENGTH_LONG)
 //                    .setAction("Action", null).show()
             if(response.type == AuthenticationResponse.Type.TOKEN) {
-                val token = response.accessToken;
-                val code = response.code;
-                getRecents(token);
+                val token = response.accessToken
+                val code = response.code
+                getRecents(token)
             }
             else {
                 showProgress(false)
+                login_contents.visibility = View.VISIBLE
                 Snackbar.make(login_activity_view, "Error logging in with Spotify", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show()
             }
@@ -177,9 +160,9 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
     private fun getRecents(token: String) {
         // Instantiate the RequestQueue.
         val queue = Volley.newRequestQueue(this)
-        val url = "https://primary-server-168620.appspot.com/?token=$token"
+        val url = "https://primary-server-168620.appspot.com/login?token=$token"
 
-        Log.e("Making this request: ", url);
+        Log.e("Volley request: ", url)
 
         // Request a string response from the provided URL.
         val stringRequest = StringRequest(Request.Method.GET, url,
@@ -192,13 +175,14 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
                 Response.ErrorListener { error ->
                     showProgress(false)
                     error.printStackTrace()
+                    Log.e("Error with login: ", error.toString())
                     showError(error.toString())
                 })
 
-//        stringRequest.retryPolicy = DefaultRetryPolicy(
-//                1200,
-//                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-//                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringRequest.retryPolicy = DefaultRetryPolicy(
+                2500,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest)
@@ -217,11 +201,20 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
             putExtra("result", result)
         }
         startActivity(intent)
+        splash_text.text = "Thanks for testing! Restart the app to try it again!"
+
+        //login_contents.visibility = View.VISIBLE
     }
 
     private fun showError(error: CharSequence) {
+        Snackbar.make(login_activity_view, "Couldn't get data. Try in a bit.", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show()
         showProgress(false)
-        Snackbar.make(login_activity_view, "We're having some trouble pulling data right now.", Snackbar.LENGTH_LONG)
+        login_contents.visibility = View.VISIBLE
+    }
+
+    private fun updateMessage(message: CharSequence) {
+        Snackbar.make(login_activity_view, message, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
     }
 }
