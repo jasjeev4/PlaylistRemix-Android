@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Spotify Recents</string>
+    <string name="app_name">Recents Playlist</string>
     <string name="app_version">0.5.0</string>
     <string name="splash_description">Sign in with Spotify to get a playlist of your most recently added tracks across your playlists.</string>
     <!-- Strings related to login -->

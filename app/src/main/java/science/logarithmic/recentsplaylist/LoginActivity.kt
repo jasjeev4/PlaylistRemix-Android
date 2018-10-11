@@ -35,6 +35,7 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
 
     private var currentViewId: Int? = null
 
+
     fun setCurrentViewById(id: Int) {
         currentViewId = id
     }
