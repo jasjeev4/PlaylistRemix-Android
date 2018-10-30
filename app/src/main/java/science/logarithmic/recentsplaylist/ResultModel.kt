@@ -7,8 +7,8 @@ data class ResultModel (
 )
 
 data class Update (
-    val needed: Int?,
-    val message: String?
+        val needed: Int?,
+        val message: String?
 )
 
 data class Result (

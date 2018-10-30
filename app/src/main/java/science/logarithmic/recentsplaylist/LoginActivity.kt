@@ -162,7 +162,8 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
         // Instantiate the RequestQueue.
         val queue = Volley.newRequestQueue(this)
         val ver = getString(R.string.app_version)
-        val url = "https://us-central1-primary-server-168620.cloudfunctions.net/recents-android?version=$ver&token=$token"
+        val url = "https://8qa32459u5.execute-api.us-west-2.amazonaws.com/v1?version=$ver&token=$token"
+        // val url = "https://us-central1-primary-server-168620.cloudfunctions.net/recents-android?version=$ver&token=$token"
 
         Log.e("Volley request: ", url)
 
