@@ -25,11 +25,7 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse
 import io.multimoon.colorful.CAppCompatActivity
 import kotlinx.android.synthetic.main.activity_login.*
 
-//const val EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE"
-
 class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
-
-    val CLIENT_ID = "bac34290c1f0480f9a21b4aab5e2c544"
     val AUTH_TOKEN_REQUEST_CODE = 16
     val AUTH_CODE_REQUEST_CODE = 17
 
@@ -78,13 +74,6 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
 
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-
-
-    /**
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -120,7 +109,8 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
         showProgress(true)
         val REDIRECT_URI = getRedirectUri().toString()
 
-        val builder = AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
+        val client_id = getString(R.string.spotify_client_id)
+        val builder = AuthenticationRequest.Builder(client_id, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
 
         builder.setScopes(arrayOf("user-read-private", "user-read-birthdate", "user-read-email", "app-remote-control", "playlist-read-private", "playlist-modify-private", "playlist-read-collaborative", "playlist-modify-public", "user-library-read", "user-library-modify", "user-top-read", "user-read-recently-played"))
         val request = builder.build()
@@ -148,7 +138,7 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
                 Snackbar.make(login_activity_view, "Error logging in with Spotify", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show()
             }
-        } // Handle successful response
+        }   // Handle successful response
             // Handle error response
             // Most likely auth flow was cancelled
             // Handle other cases
@@ -162,7 +152,8 @@ class LoginActivity : CAppCompatActivity(), LoaderCallbacks<Cursor> {
         // Instantiate the RequestQueue.
         val queue = Volley.newRequestQueue(this)
         val ver = getString(R.string.app_version)
-        val url = "https://8qa32459u5.execute-api.us-west-2.amazonaws.com/v1?version=$ver&token=$token"
+        val server = getString(R.string.server)
+        val url = "$server?version=$ver&token=$token"
         // val url = "https://us-central1-primary-server-168620.cloudfunctions.net/recents-android?version=$ver&token=$token"
 
         Log.e("Volley request: ", url)
