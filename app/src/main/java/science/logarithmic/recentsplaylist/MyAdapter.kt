@@ -30,6 +30,9 @@ class MyAdapter(private val trackNames: Array<String>, private val artistNames: 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+        val trackNo = position + 1;
+        val trackNumberText = trackNo.toString()
+        holder.cardView.track_number.text = trackNumberText
         holder.cardView.track_name.text = trackNames[position]
         holder.cardView.track_artist.text = artistNames[position]
         holder.cardView.track_album.text = albumNames[position]
